@@ -30,7 +30,7 @@ struct {
     char stick_x;
     char stick_y;
 } N64_status;
-char N64_raw_dump[33]; // 1 received bit per byte
+char N64_raw_dump[9]; // 1 received bit per byte
 
 
 void N64_send(unsigned char *buffer, char length);
@@ -220,7 +220,7 @@ void N64_get()
     asm volatile (";Starting to listen");
     unsigned char timeout1;
     unsigned char timeout2;
-    char bitcount = 9;
+    char bitcount = 9;  //should be 9 for 9 bits
     char *bitbin = N64_raw_dump;
 
     // Again, using gotos here to make the assembly more predictable and
@@ -328,14 +328,14 @@ void loop()
     // translate the data in N64_raw_dump to something useful
 //    translate_raw_data();
 
-   for (i=0; i<16; i++) {
+   for (i=0; i<9; i++) {
        Serial.print(N64_raw_dump[i], DEC);
     }
-    Serial.print(' ');
-    Serial.print(N64_status.stick_x, DEC);
-    Serial.print(' ');
-    Serial.print(N64_status.stick_y, DEC);
-    Serial.print(" \n");
+    Serial.println(' ');
+//    Serial.print(N64_status.stick_x, DEC);
+//    Serial.print(' ');
+//    Serial.print(N64_status.stick_y, DEC);
+//    Serial.print(" \n");
    //   Serial.print("         Stick X:");
  //   Serial.print(N64_status.stick_x, DEC);
   //  Serial.print("         Stick Y:");
@@ -344,7 +344,7 @@ void loop()
 
     // DEBUG: print it
     //print_N64_status();
-    delay(25);
+//    delay(25);
 }
 
 
