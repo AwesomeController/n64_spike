@@ -220,7 +220,7 @@ void N64_get()
     asm volatile (";Starting to listen");
     unsigned char timeout1;
     unsigned char timeout2;
-    char bitcount = 8;
+    char bitcount = 9;
     char *bitbin = N64_raw_dump;
 
     // Again, using gotos here to make the assembly more predictable and
