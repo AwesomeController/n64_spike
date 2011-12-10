@@ -30,8 +30,9 @@ struct {
     char stick_x;
     char stick_y;
 } N64_status;
-char N64_raw_dump[9]; // 1 received bit per byte
-
+unsigned char N64_raw_dump[9]; // 1 received bit per byte
+unsigned char command_buttons[] = {0x00,0x00,0x00,0x00};
+boolean hey = true;
 
 void N64_send(unsigned char *buffer, char length);
 void N64_get();
@@ -221,7 +222,7 @@ void N64_get()
     unsigned char timeout1;
     unsigned char timeout2;
     char bitcount = 9;  //should be 9 for 9 bits
-    char *bitbin = N64_raw_dump;
+    unsigned char *bitbin = N64_raw_dump;
 
     // Again, using gotos here to make the assembly more predictable and
     // optimization easier (please don't kill me)
@@ -229,8 +230,8 @@ read_loop:
     timeout1 = 0xff;
     // wait for line to go low
     while (N64_QUERY) {
-        if (!--timeout1)
-            return;
+//        if (!--timeout1)
+//            return;
     }
     // wait approx 2us and poll the line
     asm volatile (
@@ -251,8 +252,8 @@ read_loop:
     // it may already be high, so this should just drop through
     timeout2 = 0x3f;
     while (!N64_QUERY) {
-        if (!--timeout2)
-            return;
+//        if (!--timeout2)
+//            return;
     }
     goto read_loop;
 
@@ -314,24 +315,34 @@ void loop()
     // The last bit is rumble, flip it to rumble
     // yes this does need to be inside the loop, the
     // array gets mutilated when it goes through N64_send
-    unsigned char command[] = {0x01};
-
+    unsigned char command[] = {0x00,0x00,0x00,0x00};
+    if (hey == 0) {
+      command[0] = 0x00;
+    } else {
+      command[0] = 0x80;
+    }
+       
     // don't want interrupts getting in the way
     noInterrupts();
     // read in data and dump it to N64_raw_dump
     N64_get();
     // send those 3 bytes
-//    N64_send(command, 1);
+
+    N64_send(command, 1);
     // end of time sensitive code
     interrupts();
-
+//    for (i=0; i<9; i++) {
+//      if (N64_raw_dump[i] == 4) {
+//        command[i] = 1;
+//      }
+//    }
     // translate the data in N64_raw_dump to something useful
 //    translate_raw_data();
 
-   for (i=0; i<9; i++) {
-       Serial.print(N64_raw_dump[i], DEC);
-    }
-    Serial.println(' ');
+//   for (i=0; i<9; i++) {
+//       Serial.print(N64_raw_dump[i], DEC);
+//    }
+//    Serial.println(' ');
 //    Serial.print(N64_status.stick_x, DEC);
 //    Serial.print(' ');
 //    Serial.print(N64_status.stick_y, DEC);
@@ -345,6 +356,7 @@ void loop()
     // DEBUG: print it
     //print_N64_status();
 //    delay(25);
+  hey = !hey;
 }
 
 
