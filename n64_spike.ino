@@ -51,7 +51,7 @@ void setup()
   // Don't remove these lines, we don't want to push +5V to the controller
   digitalWrite(N64_PIN, LOW);  
   pinMode(N64_PIN, INPUT);
-  
+  attachInterrupt(0, N64_Commands, FALLING);
   // Stupid routine to wait for the gamecube controller to stop
   // sending its response. We don't care what it is, but we
   // can't start asking for status if it's still responding
@@ -119,7 +119,7 @@ void N64_send(unsigned char *buffer, char length)
 outer_loop:
     {
         asm volatile (";Starting inner for loop");
-        bits=32;
+        bits=8;
 inner_loop:
         {
             // Starting a bit, set the line low
@@ -315,22 +315,9 @@ void loop()
     // The last bit is rumble, flip it to rumble
     // yes this does need to be inside the loop, the
     // array gets mutilated when it goes through N64_send
-    unsigned char command[] = {0x00,0x00,0x00,0x00};
-    if (hey == 0) {
-      command[0] = 0x00;
-    } else {
-      command[0] = 0x80;
-    }
+
        
     // don't want interrupts getting in the way
-    noInterrupts();
-    // read in data and dump it to N64_raw_dump
-    N64_get();
-    // send those 3 bytes
-
-    N64_send(command, 1);
-    // end of time sensitive code
-    interrupts();
 //    for (i=0; i<9; i++) {
 //      if (N64_raw_dump[i] == 4) {
 //        command[i] = 1;
@@ -356,7 +343,20 @@ void loop()
     // DEBUG: print it
     //print_N64_status();
 //    delay(25);
-  hey = !hey;
 }
 
-
+void N64_Commands()
+{
+  unsigned char command[] = {0x90,0x00,0x00,0x00};
+  if (hey == 0) {
+    command[0] = 0x00;
+  } else {
+    command[0] = 0x80;
+  }
+  // read in data and dump it to N64_raw_dump
+  N64_get();
+  // send those 3 bytes
+  N64_send(command, 4);
+  // end of time sensitive code
+  hey = !hey;
+}
