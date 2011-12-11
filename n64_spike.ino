@@ -1,7 +1,7 @@
 /**
- * Gamecube controller to Nintendo 64 adapter
+ * Arduino mimicking an N64 controller
  * by Andrew Brown
- * Rewritten for N64 to HID by Peter Den Hartog
+ * Rewritten for N64 controller by Kail Keusch
  */
 
 /**
