@@ -2,6 +2,7 @@
  * Arduino mimicking an N64 controller
  * by Andrew Brown
  * Rewritten for N64 controller by Kail Keusch
+ * first step towards getting Wii controller working with N64
  */
 
 /**
